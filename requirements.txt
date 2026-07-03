@@ -27,3 +27,4 @@ transformers
 openpyxl
 pandas
 ollama
+groq
