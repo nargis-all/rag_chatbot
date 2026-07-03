@@ -26,3 +26,4 @@ torch
 transformers
 openpyxl
 pandas
+ollama
