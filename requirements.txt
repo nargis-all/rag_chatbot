@@ -3,27 +3,16 @@ langchain
 langchain-community
 langchain-text-splitters
 
-sentence-transformers
-transformers
-torch
+sentence-transformers==3.0.1
+transformers==4.44.2
+torch==2.3.1
 
 supabase
-
 python-dotenv
-
 python-docx
-
 streamlit
-
 numpy
-
-streamlit
 openai
-supabase
-sentence-transformers
-python-dotenv
-torch
-transformers
 openpyxl
 pandas
 ollama
