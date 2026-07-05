@@ -16,5 +16,9 @@ numpy
 openai
 openpyxl
 pandas
-ollama
+torch>=2.9.0
+transformers>=4.56.0
+sentence-transformers>=5.1.0
+
+
 groq
