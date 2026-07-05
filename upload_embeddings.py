@@ -1,41 +1,41 @@
 from docx import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
-
 from supabase_client import supabase
+import os
 
-print("Loading model...")
-
+# Modelni faqat bir marta yuklaymiz
 model = SentenceTransformer("BAAI/bge-m3")
 
-print("Reading document...")
 
-doc = Document("data/lexuz_5535133.docx")
+def upload_document(file_path, file_name):
+    """
+    Upload a DOCX file, split it into chunks,
+    create embeddings and store them in Supabase.
+    """
 
-text = ""
+    doc = Document(file_path)
 
-for p in doc.paragraphs:
-    text += p.text + "\n"
+    text = ""
 
-splitter = RecursiveCharacterTextSplitter(
-    chunk_size=800,
-    chunk_overlap=150
-)
+    for p in doc.paragraphs:
+        text += p.text + "\n"
 
-chunks = splitter.split_text(text)
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=800,
+        chunk_overlap=150
+    )
 
-print(f"Total chunks: {len(chunks)}")
+    chunks = splitter.split_text(text)
 
-for i, chunk in enumerate(chunks):
+    for chunk in chunks:
 
-    embedding = model.encode(chunk).tolist()
+        embedding = model.encode(chunk).tolist()
 
-    supabase.table("documents").insert({
-        "content": chunk,
-        "embedding": embedding
-    }).execute()
+        supabase.table("documents").insert({
+            "content": chunk,
+            "embedding": embedding,
+            "file_name": file_name
+        }).execute()
 
-    if (i + 1) % 20 == 0:
-        print(f"Uploaded {i+1}/{len(chunks)}")
-
-print("Done!")
+    return len(chunks)
