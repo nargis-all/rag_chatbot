@@ -1,24 +1,23 @@
+streamlit
+
+supabase
+python-dotenv
+
 langgraph
 langchain
 langchain-community
 langchain-text-splitters
 
-sentence-transformers>=3.0.0,<4.0.0
-transformers>=4.40.0,<4.50.0
-torch>=2.2.0,<2.5.0
+sentence-transformers
+transformers
+torch
 
-supabase
-python-dotenv
 python-docx
 pypdf
-streamlit
-numpy
-openai
-openpyxl
-pandas
-torch>=2.9.0
-transformers>=4.56.0
-sentence-transformers>=5.1.0
 
+numpy
+pandas
+openpyxl
 
 groq
+openai
