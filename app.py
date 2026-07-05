@@ -93,7 +93,6 @@ if st.button("🔍 Get Answer", use_container_width=True):
 
             results = retrieve(
                 question,
-                st.session_state.current_file,
                 top_k=3
             )
 
