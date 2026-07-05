@@ -4,22 +4,43 @@ from sentence_transformers import SentenceTransformer
 from supabase_client import supabase
 import os
 
-# Modelni faqat bir marta yuklaymiz
 model = SentenceTransformer("BAAI/bge-m3")
+
+
+def extract_text(file_path):
+    """
+    Extract raw text from a docx, pdf, or txt file.
+    """
+
+    ext = os.path.splitext(file_path)[1].lower()
+
+    if ext == ".docx":
+        doc = Document(file_path)
+        return "\n".join(p.text for p in doc.paragraphs)
+
+    elif ext == ".txt":
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read()
+
+    elif ext == ".pdf":
+        from pypdf import PdfReader
+        reader = PdfReader(file_path)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        return text
+
+    else:
+        raise ValueError(f"Unsupported file type: {ext}")
 
 
 def upload_document(file_path, file_name):
     """
-    Upload a DOCX file, split it into chunks,
+    Upload a DOCX, PDF, or TXT file, split it into chunks,
     create embeddings and store them in Supabase.
     """
 
-    doc = Document(file_path)
-
-    text = ""
-
-    for p in doc.paragraphs:
-        text += p.text + "\n"
+    text = extract_text(file_path)
 
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=800,
