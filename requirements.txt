@@ -21,3 +21,9 @@ openpyxl
 
 groq
 openai
+pytesseract
+pdf2image
+Pillow
+pytesseract
+pdf2image
+Pillow
