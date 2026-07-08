@@ -4,8 +4,8 @@ from sentence_transformers import SentenceTransformer
 from supabase_client import supabase
 from pdf2image import convert_from_path
 import pytesseract
+import time
 import os
-
 model = SentenceTransformer("BAAI/bge-m3")
 
 
