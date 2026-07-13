@@ -16,7 +16,6 @@ st.set_page_config(
 st.title("🤖 Customs RAG Chatbot")
 st.caption("Upload document(s) and ask questions about them.")
 
-# ---------------- SESSION STATE ---------------- #
 
 if "uploaded_files_list" not in st.session_state:
     st.session_state.uploaded_files_list = []
@@ -24,7 +23,9 @@ if "uploaded_files_list" not in st.session_state:
 if "selected_files" not in st.session_state:
     st.session_state.selected_files = []
 
-# ---------------- SIDEBAR ---------------- #
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
 
 with st.sidebar:
 
@@ -86,7 +87,14 @@ with st.sidebar:
         st.session_state.clear()
         st.rerun()
 
-# ---------------- MAIN ---------------- #
+if st.session_state.chat_history:
+    st.subheader("🗂 Conversation")
+    for past_q, past_a in st.session_state.chat_history:
+        with st.chat_message("user"):
+            st.write(past_q)
+        with st.chat_message("assistant"):
+            st.write(past_a)
+    st.divider()
 
 st.subheader("💬 Ask a Question")
 
@@ -122,6 +130,8 @@ if st.button("🔍 Get Answer", use_container_width=True):
 
         answer_text = f"The word \"{target_word}\" appears {total_count} times across the selected document(s)."
 
+        st.session_state.chat_history.append((question, answer_text))
+
         st.subheader("💬 Answer")
         st.write(f"The word \"{target_word}\" appears **{total_count}** times across the selected document(s).")
 
@@ -156,8 +166,11 @@ if st.button("🔍 Get Answer", use_container_width=True):
 
             answer = ask_llm(
                 context,
-                question
+                question,
+                chat_history=st.session_state.chat_history
             )
+
+        st.session_state.chat_history.append((question, answer))
 
         st.subheader("💬 Answer")
         st.write(answer)
