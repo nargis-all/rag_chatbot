@@ -2,7 +2,7 @@ import os
 import re
 import traceback
 import streamlit as st
-
+from export_utils import create_answer_docx
 from retriever import retrieve, count_word_occurrences
 from llm import ask_llm
 from upload_embeddings import upload_document
@@ -120,8 +120,20 @@ if st.button("🔍 Get Answer", use_container_width=True):
                 for f in st.session_state.selected_files
             )
 
+        answer_text = f"The word \"{target_word}\" appears {total_count} times across the selected document(s)."
+
         st.subheader("💬 Answer")
         st.write(f"The word \"{target_word}\" appears **{total_count}** times across the selected document(s).")
+
+        docx_buffer = create_answer_docx(question, answer_text)
+
+        st.download_button(
+            label="⬇️ Download Answer as Word",
+            data=docx_buffer,
+            file_name="answer.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
         st.stop()
 
     try:
@@ -130,29 +142,3 @@ if st.button("🔍 Get Answer", use_container_width=True):
             results = retrieve(
                 question,
                 file_names=st.session_state.selected_files,
-                top_k=3
-            )
-
-            if not results:
-                st.error("No relevant information found.")
-                st.stop()
-
-            context = "\n\n".join(
-                doc["content"][:800]
-                for doc in results
-            )
-
-            answer = ask_llm(
-                context,
-                question
-            )
-
-        st.subheader("💬 Answer")
-        st.write(answer)
-
-        with st.expander("📄 Retrieved Context"):
-            st.write(context)
-
-    except Exception as e:
-        st.error(f"Error: {e}")
-        st.code(traceback.format_exc())
