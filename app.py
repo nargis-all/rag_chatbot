@@ -142,3 +142,38 @@ if st.button("🔍 Get Answer", use_container_width=True):
             results = retrieve(
                 question,
                 file_names=st.session_state.selected_files,
+                top_k=3
+            )
+
+            if not results:
+                st.error("No relevant information found.")
+                st.stop()
+
+            context = "\n\n".join(
+                doc["content"][:800]
+                for doc in results
+            )
+
+            answer = ask_llm(
+                context,
+                question
+            )
+
+        st.subheader("💬 Answer")
+        st.write(answer)
+
+        with st.expander("📄 Retrieved Context"):
+            st.write(context)
+
+        docx_buffer = create_answer_docx(question, answer, context)
+
+        st.download_button(
+            label="⬇️ Download Answer as Word",
+            data=docx_buffer,
+            file_name="answer.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+        st.code(traceback.format_exc())
