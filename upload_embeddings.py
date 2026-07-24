@@ -6,6 +6,7 @@ from pdf2image import convert_from_path
 import pytesseract
 import time
 import os
+
 model = SentenceTransformer("BAAI/bge-m3")
 
 
@@ -44,6 +45,9 @@ def upload_document(file_path, file_name):
 
     text = extract_text(file_path)
 
+    # Strip null bytes - Postgres text/jsonb columns reject \x00
+    text = text.replace("\x00", "")
+
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=800,
         chunk_overlap=150
@@ -62,6 +66,7 @@ def upload_document(file_path, file_name):
         })
 
     batch_size = 20
+    last_error = None
 
     for i in range(0, len(rows), batch_size):
         batch = rows[i:i + batch_size]
@@ -71,9 +76,13 @@ def upload_document(file_path, file_name):
                 supabase.table("documents").insert(batch).execute()
                 break
             except Exception as e:
+                last_error = e
                 print(f"Batch insert attempt {attempt+1} failed: {e}")
                 time.sleep(2)
         else:
-            raise RuntimeError(f"Failed to insert batch starting at row {i} after 3 attempts")
+            raise RuntimeError(
+                f"Failed to insert batch starting at row {i} after 3 attempts. "
+                f"Last error: {last_error}"
+            )
 
     return len(chunks)
